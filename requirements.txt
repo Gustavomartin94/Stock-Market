@@ -1,0 +1,7 @@
+python-dotenv
+psycopg2
+apache-airflow
+datetime
+pandas
+sqlalchemy
+requests
