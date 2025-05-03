@@ -3,55 +3,55 @@ import pandas as pd
 from datetime import datetime
 from config import KEY
 
-# Reemplaza 'YOUR_API_KEY' con tu propio código de API de AlphaVantage
+# Replace 'YOUR_API_KEY' with your own AlphaVantage API key
 API_KEY = KEY
 
-# Lista de símbolos de acciones que deseas obtener datos
+# List of stock symbols you want to retrieve data for
 symbols = ['AAPL', 'GOOGL', 'MSFT']
 
-# Lista para almacenar los DataFrames individuales de cada acción
+# List to store individual DataFrames for each stock
 dfs = []
 
 for symbol in symbols:
-    # URL de la API de AlphaVantage para obtener datos de acciones
+    # AlphaVantage API URL to get stock data
     url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={API_KEY}'
 
-    # Realiza la solicitud GET a la API
+    # Make a GET request to the API
     response = requests.get(url)
 
-    # Verifica si la solicitud fue exitosa
+    # Check if the request was successful
     if response.status_code == 200:
         data = response.json()['Time Series (Daily)']
-        # Convertir el objeto JSON a un DataFrame de pandas
+        # Convert the JSON object to a Pandas DataFrame
         df = pd.DataFrame.from_dict(data, orient='index')
-        # Cambiar el nombre de las columnas
+        # Rename the columns
         df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
-        # Convertir los valores a tipos numéricos
+        # Convert values to numeric types
         df = df.apply(pd.to_numeric)
         
-        # Agregar la columna de Símbolo de la acción
+        # Add the stock symbol column
         df['Symbol'] = symbol
         
-        # Agregar la columna de Fecha_Actualizacion
+        # Add the update date column
         df['Fecha_Actualizacion'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        # Agregar la columna de Fecha
+        # Add the date column
         df['Fecha'] = df.index
         
-        # Agregar una columna de clave primaria e indice
+        # Add a primary key and index column
         df['Primary_Key'] = df['Symbol'] + ' ' + df.index
         
-        # Reordenar las columnas
+        # Reorder the columns
         df = df[['Fecha', 'Symbol', 'Open', 'High', 'Low', 'Close', 'Volume', 'Fecha_Actualizacion', 'Primary_Key']]
         
-        # Agregar el DataFrame de esta acción a la lista
+        # Add the DataFrame for this stock to the list
         dfs.append(df)
         
     else:
-        print(f"Error al obtener datos para {symbol}: {response.status_code}")
+        print(f"Error retrieving data for {symbol}: {response.status_code}")
 
-# Combinar todos los DataFrames en uno solo
+# Combine all DataFrames into a single one
 combined_df = pd.concat(dfs)
 
-# Mostrar el DataFrame combinado
+# Display the combined DataFrame
 combined_df
